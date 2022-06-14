@@ -15,9 +15,9 @@ def in_database(UPC):
         return False
 
 
-def increment_quantity(UPC):
+def increment_quantity(UPC, quantity:int=1):
     docRef = collection.document(str(UPC))
-    docRef.update({'quantity': firestore.Increment(1)})
+    docRef.update({'quantity': firestore.Increment(quantity)})
 
 def add_item(data):
     collection.document(str(data["upc"])).set(data)
