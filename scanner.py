@@ -8,19 +8,28 @@ def get_data(UPC):
     requestString = "https://api.upcdatabase.org/product/" + str(UPC) + "?apikey=" + str(API_KEY)
     response = requests.get(requestString)
     if response.status_code == 200:
-        print('Success!')
         return response.json()
     else:
         return None
         
 def initialize_data(UPC):
     rawData = get_data(UPC)
-    data = {}
+    data = default_data(UPC)
+    if rawData is None:
+        return data
+
     if rawData["title"] != "":
         data["title"] = rawData["title"]
     else:
         data["title"] = rawData["description"]
-    data["UPC"] = UPC
+
+    return data
+
+
+def default_data(UPC):
+    data = {}
+    data["title"] = "Unknown"
+    data["upc"] = UPC
     data["quantity"] = 1
     data["price"] = None
     data["notes"] = None
@@ -37,6 +46,7 @@ def main():
         increment_quantity(UPC)
     else:        
         data = initialize_data(UPC)
+        print(data)
         add_item(data)
 
 

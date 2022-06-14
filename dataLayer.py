@@ -1,13 +1,23 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
-db = firestore.client()  # this connects to our Firestore database
-collection = db.collection('places')  # opens 'places' collection
+
+cred = credentials.Certificate("credentials.json")
+firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+collection = db.collection('pantry')
 
 def in_database(UPC):
-    pass
+    docRef = collection.document(str(UPC))
+    if docRef.get().exists:
+        return True
+    else:
+        return False
+
 
 def increment_quantity(UPC):
-    pass
+    docRef = collection.document(str(UPC))
+    docRef.update({'quantity': firestore.Increment(1)})
 
 def add_item(data):
-    pass
+    collection.document(str(data["upc"])).set(data)
