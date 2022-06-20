@@ -76,12 +76,7 @@ def blank_nutritionix(UPC):
     data["img_url"] = None
     return data
 
-
-def main():
-    load_dotenv()
-    #Test UPC, from Matzos
-    UPC = "015300440517"
-
+def process_upc(UPC):
     if in_database(UPC):
         increment_quantity(UPC)
         print("Incremented quantity")
@@ -90,6 +85,14 @@ def main():
         print(data)
         add_item(data)
 
+def main():
+    load_dotenv()
+    #Test UPC, from Matzos
+    while True:
+        UPC = input("Enter UPC: ")
+        if UPC == "":
+            break
+        process_upc(UPC)
 
 if __name__ == "__main__":
     main()
