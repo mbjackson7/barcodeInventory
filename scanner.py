@@ -2,6 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 from dataLayer import in_database, increment_quantity, add_item
+from bs4 import BeautifulSoup
 
 def get_upcdata(UPC):
     API_KEY = os.getenv('API_KEY')
@@ -76,12 +77,51 @@ def blank_nutritionix(UPC):
     data["img_url"] = None
     return data
 
-def process_upc(UPC):
+def dcpi_data(DCPI):
+    rawData = get_target_data(DCPI)
+    print(rawData)
+    data = blank_target(DCPI)
+    if rawData is None:
+        return data
+    data["food_name"] = rawData["title"].replace(" : Target", "")
+    data["url"] = rawData["link"]
+    data["img_url"] = rawData["pagemap"]["cse_image"][0]["src"]
+    return data
+
+def get_target_data(DCPI):
+    formattedDCPI = DCPI[:3] + "-" + DCPI[3:5] + "-" + DCPI[5:]
+    print(formattedDCPI)
+    requestString = "https://customsearch.googleapis.com/customsearch/v1/?exactTerms=" + formattedDCPI + "&cx=b4baf1166a6ca203f&key=" + os.getenv('CSE_API_KEY')
+    response = requests.get(requestString)
+    print(response.json())
+    if "items" in response.json():
+        data = response.json()["items"][0]
+        return data
+    else:
+        return None
+
+def blank_target(DCPI):
+    data = {}
+    data["food_name"] = "Unknown"
+    data["brand_name"] = None
+    data["upc"] = DCPI
+    data["quantity"] = 1
+    data["notes"] = None
+    data["lowNum"] = 0
+    data["img_url"] = None
+    data["url"] = None
+    return data
+
+def process_upc(UPC,DCPI=False):
     if in_database(UPC):
         increment_quantity(UPC)
         print("Incremented quantity")
-    else:        
-        data = populate_data(UPC)
+    else:
+        data = ""
+        if DCPI:
+            data = dcpi_data(UPC)
+        else:
+            data = populate_data(UPC)
         print(data)
         add_item(data)
 
@@ -92,7 +132,7 @@ def main():
         UPC = input("Enter UPC: ")
         if UPC == "":
             break
-        process_upc(UPC)
+        process_upc(UPC, True)
 
 if __name__ == "__main__":
     main()

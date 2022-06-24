@@ -62,18 +62,21 @@ def process_image(image_data):
 def extract_upcs(text):
     print("Extracting UPCs...")
     upcs = []
-    matches = re.findall("\n\d{9}\n", text, re.M)
+    matches = re.findall("\n\d{9}", text, re.M)
     for match in matches:
         upcs.append(match.replace("\n", ""))
     print("Extracted")
     return upcs
 
 def handle_image(image_data):
+    if image_data is None:
+        print('No image data')
+        return
     rawText = process_image(image_data)
     upcs = extract_upcs(rawText)
     print(upcs)
     for upc in upcs:
-        process_upc(upc)
+        process_upc(upc, True)
 
 
 # Create a callback on_snapshot function to capture changes
