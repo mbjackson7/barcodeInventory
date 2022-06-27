@@ -1,4 +1,4 @@
-# barcodeInventory
+# Pantry Inventory Scanner
 The purpose of the program is primarily to create a personal database of food items in your own pantry.
 
 To use, this program must be connected to a personal database (I use Firestore as can be seen in the code).
